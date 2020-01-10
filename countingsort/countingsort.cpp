@@ -12,33 +12,33 @@ string rtrim(const string &);
 vector<string> split(const string &);
 
 // Complete the countSort function below.
-void countSort(vector<vector<string>> arr, ofstream &debugfile) 
+void countSort(vector<vector<string>> arr, ofstream &debugfile)
 {
     auto n = arr.size();
     vector<vector<pair<int, string>>> countsortlist(n);
     // initialize counting sort list
-    for (int i=0; i < n; i++) 
+    for (int i=0; i < n; i++)
     {
         int index = std::stoi (arr[i][0], nullptr, 10);
         pair<int, string> temp(i, arr[i][1]);
         countsortlist[index].push_back(temp);
     }
 
-    for (auto itr = countsortlist.cbegin(); itr != countsortlist.cend(); ++itr) 
+    for (auto itr = countsortlist.cbegin(); itr != countsortlist.cend(); ++itr)
     {
     //for (vector<vector<pair<int, string>>>::const_iterator itr = countsortlist.cbegin(); itr != countsortlist.cend(); ++itr) {
-        for (auto e = (*itr).cbegin(); e != (*itr).cend(); ++e) 
+        for (auto e = (*itr).cbegin(); e != (*itr).cend(); ++e)
         {
         //for (vector<pair<int, string>>::const_iterator e = (*itr).cbegin(); e != (*itr).cend(); ++e) {
-            if ((*e).first < n/2) 
+            if ((*e).first < n/2)
             {
                 cout << "-" << " ";
-            } 
-            else 
+            }
+            else
             {
                 cout << (*e).second << " ";
             }
-            if (debugfile.is_open()) 
+            if (debugfile.is_open())
             {
                 debugfile << "(" << (*e).first;
                 debugfile << "," << (*e).second << ")" << endl;
@@ -48,7 +48,7 @@ void countSort(vector<vector<string>> arr, ofstream &debugfile)
     cout << endl;
 }
 
-cxxopts::ParseResult parse(int argc, char* argv[]) 
+cxxopts::ParseResult parse(int argc, char* argv[])
 {
     try
     {
@@ -89,8 +89,8 @@ int main(int argc, char* argv[])
     string n_temp;
     ifstream inputfile ("inputfile");
     ofstream debugfile;
-    
-    if (inputfile.is_open()) 
+
+    if (inputfile.is_open())
     {
         getline(inputfile, n_temp);
     }
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
 
     vector<vector<string>> arr(n);
 
-    for (int i = 0; i < n; i++) 
+    for (int i = 0; i < n; i++)
     {
         arr[i].resize(2);
 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 
         vector<string> arr_row_temp = split(rtrim(arr_row_temp_temp));
 
-        for (int j = 0; j < 2; j++) 
+        for (int j = 0; j < 2; j++)
         {
             string arr_row_item = arr_row_temp[j];
 
@@ -122,11 +122,11 @@ int main(int argc, char* argv[])
     }
 
     countSort(arr, debugfile);
-    if (inputfile.is_open()) 
+    if (inputfile.is_open())
     {
         inputfile.close();
     }
-    if (debugfile.is_open()) 
+    if (debugfile.is_open())
     {
         debugfile.close();
     }
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-string ltrim(const string &str) 
+string ltrim(const string &str)
 {
     string s(str);
 
@@ -146,7 +146,7 @@ string ltrim(const string &str)
     return s;
 }
 
-string rtrim(const string &str) 
+string rtrim(const string &str)
 {
     string s(str);
 
@@ -158,14 +158,14 @@ string rtrim(const string &str)
     return s;
 }
 
-vector<string> split(const string &str) 
+vector<string> split(const string &str)
 {
     vector<string> tokens;
 
     string::size_type start = 0;
     string::size_type end = 0;
 
-    while ((end = str.find(" ", start)) != string::npos) 
+    while ((end = str.find(" ", start)) != string::npos)
     {
         tokens.push_back(str.substr(start, end - start));
 
