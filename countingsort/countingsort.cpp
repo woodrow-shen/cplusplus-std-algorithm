@@ -11,25 +11,83 @@ string ltrim(const string &);
 string rtrim(const string &);
 vector<string> split(const string &);
 
+enum Direction
+{
+    INC, DEC
+};
+
+void countSort(Direction direction, vector<int> arr, ofstream &debugfile)
+{
+    auto n = arr.size();
+    vector<int> countsortlist(n), sortedlist(n);
+
+    cout << "[";
+    for (auto iter = arr.cbegin(); iter != arr.cend(); ++iter)
+    {
+        cout << *iter << " ";
+    }
+    cout << "]" << endl;
+
+    // count each number to treat them as index
+    for (int i = 0; i < n; i++)
+    {
+        int index = arr[i];
+        countsortlist[index]++;
+    }
+
+    if (direction == Direction::INC)
+    {
+        // accumlate the counter of each number
+        // this is about relative position comparison
+        for (int i = 1; i < n; i++)
+        {
+            countsortlist[i] += countsortlist[i-1];
+        }
+    }
+    else if (direction == Direction::DEC)
+    {
+        // accumlate the counter of each number
+        // this is about relative position comparison
+        for (int i = n - 1; i > 0; i--)
+        {
+            countsortlist[i-1] += countsortlist[i];
+        }
+    }
+
+    // reverse-iterate original list to put each number according to its position
+    for (int i = n; i > 0; i--)
+    {
+        sortedlist[--countsortlist[arr[i-1]]] = arr[i-1];
+    }
+
+    cout << "[";
+    for (auto iter = sortedlist.cbegin(); iter != sortedlist.cend(); ++iter)
+    {
+        cout << *iter << " ";
+    }
+    cout << "]" << endl;
+
+}
+
 // Complete the countSort function below.
 void countSort(vector<vector<string>> arr, ofstream &debugfile)
 {
     auto n = arr.size();
     vector<vector<pair<int, string>>> countsortlist(n);
     // initialize counting sort list
-    for (int i=0; i < n; i++)
+    for (int i = 0; i < n; i++)
     {
         int index = std::stoi (arr[i][0], nullptr, 10);
         pair<int, string> temp(i, arr[i][1]);
         countsortlist[index].push_back(temp);
     }
 
+    //for (vector<vector<pair<int, string>>>::const_iterator itr = countsortlist.cbegin(); itr != countsortlist.cend(); ++itr) {
     for (auto itr = countsortlist.cbegin(); itr != countsortlist.cend(); ++itr)
     {
-    //for (vector<vector<pair<int, string>>>::const_iterator itr = countsortlist.cbegin(); itr != countsortlist.cend(); ++itr) {
+        //for (vector<pair<int, string>>::const_iterator e = (*itr).cbegin(); e != (*itr).cend(); ++e) {
         for (auto e = (*itr).cbegin(); e != (*itr).cend(); ++e)
         {
-        //for (vector<pair<int, string>>::const_iterator e = (*itr).cbegin(); e != (*itr).cend(); ++e) {
             if ((*e).first < n/2)
             {
                 cout << "-" << " ";
@@ -56,6 +114,8 @@ cxxopts::ParseResult parse(int argc, char* argv[])
 
         options.add_options("Group")
             ("d, debug", "Enable debugging")
+            ("n, num", "Demostrate number version")
+            ("r, reverse", "Print reverse sorting")
             ("h, help", "Print help")
             ;
 
@@ -71,6 +131,16 @@ cxxopts::ParseResult parse(int argc, char* argv[])
         {
             std::cout << "Saw option debug" << std::endl;
         }
+
+        if (result.count("n"))
+        {
+            std::cout << "Saw option num: demostrate number version" << std::endl;
+        }
+
+        if (result.count("r"))
+        {
+            std::cout << "Saw option reverse: Print reverse sorting" << std::endl;
+        }
         return result;
     }
     catch (const cxxopts::OptionException& e)
@@ -82,54 +152,123 @@ cxxopts::ParseResult parse(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+    const string dictinputfile = "inputfile";
+    const string numinputfile = "inputfile_number";
     auto result = parse(argc, argv);
     auto arguments = result.arguments();
     cout << "Saw " << arguments.size() << " arguments" << endl;
 
     string n_temp;
-    ifstream inputfile ("inputfile");
+    ifstream *inputfile;
     ofstream debugfile;
-
-    if (inputfile.is_open())
-    {
-        getline(inputfile, n_temp);
-    }
+    Direction dir = Direction::INC;
 
     if (result.count("d"))
     {
         debugfile.open("debugfile");
     }
 
-    int n = stoi(ltrim(rtrim(n_temp)));
-
-    vector<vector<string>> arr(n);
-
-    for (int i = 0; i < n; i++)
+    if (result.count("r"))
     {
-        arr[i].resize(2);
-
-        string arr_row_temp_temp;
-        getline(inputfile, arr_row_temp_temp);
-
-        vector<string> arr_row_temp = split(rtrim(arr_row_temp_temp));
-
-        for (int j = 0; j < 2; j++)
-        {
-            string arr_row_item = arr_row_temp[j];
-
-            arr[i][j] = arr_row_item;
-        }
+        dir = Direction::DEC;
     }
 
-    countSort(arr, debugfile);
-    if (inputfile.is_open())
+    if (result.count("n"))
     {
-        inputfile.close();
+        try
+        {
+            inputfile = new ifstream(numinputfile);
+
+            if (inputfile->is_open())
+            {
+                getline(*inputfile, n_temp);
+            }
+            else
+            {
+                throw static_cast<string>(strerror(errno));
+            }
+        }
+        catch (std::ios_base::failure& e)
+        {
+            cerr << e.what() << endl;
+        }
+        catch (const string& e)
+        {
+            cerr << "Catching an exception: " << e << endl;
+            return errno;
+        }
+
+        int n = stoi(ltrim(rtrim(n_temp)));
+
+        vector<int> arr(n);
+
+        for (int i = 0; i < n; i++)
+        {
+            getline(*inputfile, n_temp);
+            int n = stoi(ltrim(rtrim(n_temp)));
+
+            arr[i] = n;
+        }
+        countSort(dir, arr, debugfile);
+    }
+    else
+    {
+        try
+        {
+            inputfile = new ifstream(dictinputfile);
+
+            if (inputfile->is_open())
+            {
+                getline(*inputfile, n_temp);
+            }
+            else
+            {
+                throw static_cast<string>(strerror(errno));
+            }
+        }
+        catch (std::ios_base::failure& e)
+        {
+            cerr << e.what() << endl;
+        }
+        catch (const string& e)
+        {
+            cerr << "Catching an exception: " << e << endl;
+            return errno;
+        }
+
+        int n = stoi(ltrim(rtrim(n_temp)));
+
+        vector<vector<string>> arr(n);
+
+        for (int i = 0; i < n; i++)
+        {
+            arr[i].resize(2);
+
+            string arr_row_temp_temp;
+            getline(*inputfile, arr_row_temp_temp);
+
+            vector<string> arr_row_temp = split(rtrim(arr_row_temp_temp));
+
+            for (int j = 0; j < 2; j++)
+            {
+                string arr_row_item = arr_row_temp[j];
+
+                arr[i][j] = arr_row_item;
+            }
+        }
+        countSort(arr, debugfile);
+    }
+
+    if (inputfile->is_open())
+    {
+        inputfile->close();
     }
     if (debugfile.is_open())
     {
         debugfile.close();
     }
+
+    free(inputfile);
 
     return 0;
 }
