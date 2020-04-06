@@ -11,7 +11,7 @@ cxxopts::ParseResult parse(int argc, char* argv[])
 {
     try
     {
-        cxxopts::Options options(argv[0], "A Vector Erase demonstration");
+        cxxopts::Options options(argv[0], "A LCS demonstration");
 
         options.add_options("Group")
             ("d, debug", "Enable debugging")

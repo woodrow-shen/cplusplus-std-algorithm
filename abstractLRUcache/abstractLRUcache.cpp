@@ -14,7 +14,7 @@ cxxopts::ParseResult parse(int argc, char* argv[])
 {
     try
     {
-        cxxopts::Options options(argv[0], "A Counting Sort demonstration");
+        cxxopts::Options options(argv[0], "A LRUCache demonstration");
 
         options.add_options("Group")
             ("d, debug", "Enable debugging")
